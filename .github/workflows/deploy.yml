@@ -1,0 +1,46 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Trigger the action when there is a push to the main branch
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+  pages: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Deploy to GitHub Pages
+        uses: actions/checkout@v3 # Checkout repo
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1 # Setup bun
+        with:
+            bun-version: latest # You can also use a specific version
+      - run: bun install # Only needed if you have any dependencies
+
+      - name: Build
+        run: bun run build # Build your project
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+            name: github-pages
+            path: './dist'  # Ensure this path points to your build output directory
+
+      - name: Deploy
+        uses: actions/deploy-pages@v4
+        env:
+         name: github-pages
+        with:
+            artifact_name: github-pages
+            token: ${{ secrets.GITHUB_TOKEN }}
